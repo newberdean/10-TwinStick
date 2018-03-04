@@ -10,7 +10,6 @@ public class GameManager : MonoBehaviour {
 	public static bool Recording = true, Rewinding = false, Replaying = false;
 	public GameObject rec, rew, rep, stp, lmt; // Record, Rewind, Replay, Stop, Limit;
 
-	private float timeToWait = 1.0f;
 	private bool rewindLast = false, replayLast = false, canRewind = true, canReplay = true;
 	private CanvasGroup limitGroup;
 	private Image imageToEmpty;
@@ -48,15 +47,11 @@ public class GameManager : MonoBehaviour {
 			Rewinding = Replaying = false;
 		}
 
-		//Replaying = canReplay = replayLast = (USACPI.CrossPlatformInputManager.GetButton ("Left Trigger 2") || USACPI.CrossPlatformInputManager.GetButton ("Fire1")) && !Rewinding && canReplay;
-
-		//Rewinding = canRewind = rewindLast = (USACPI.CrossPlatformInputManager.GetButton ("Right Trigger 2") ||USACPI.CrossPlatformInputManager.GetButton ("Fire2")) && !Replaying && canRewind;
-
-		if (USACPI.CrossPlatformInputManager.GetButtonDown ("Left Trigger 1")) {
+		if (USACPI.CrossPlatformInputManager.GetButton ("Left Trigger 1")) {
 			Time.timeScale = (Mathf.Max(0f, Time.timeScale - 0.1f));
 		}
 
-		if (USACPI.CrossPlatformInputManager.GetButtonDown ("Right Trigger 1")) {
+		if (USACPI.CrossPlatformInputManager.GetButton ("Right Trigger 1")) {
 			Time.timeScale = (Mathf.Min(100f, Time.timeScale + 0.1f));
 		}
 
@@ -75,12 +70,9 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void SetUpLimit (){
-		timeToWait = Time.time + 1f;
 		imageToEmpty.fillAmount = 1f;
 		limitGroup.alpha = 1f;
-		if (rewindLast)
-			limitText.text = "CAN'T REPLAY";
-		else if (replayLast)
-			limitText.text = "CAN'T REWIND";
+		limitText.text = "CAN'T " + (rewindLast ? "REPLAY" : (replayLast ? "REWIND" : "EVEN"));
+		// If user rewound last, then can't replay. If user replayed last, then can't rewind. If error; SASS. JUST SASS.
 	}
 }
