@@ -41,7 +41,7 @@ namespace UnityStandardAssets.Vehicles.Ball
 
             float h = CrossPlatformInputManager.GetAxis("Horizontal");
             float v = CrossPlatformInputManager.GetAxis("Vertical");
-            jump = CrossPlatformInputManager.GetButton("Cross");
+			jump = CrossPlatformInputManager.GetButton("Cross") || CrossPlatformInputManager.GetButton("Jump");
 
             // calculate move direction
             if (cam != null)

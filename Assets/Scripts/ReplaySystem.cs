@@ -4,9 +4,12 @@ using UnityEngine;
 
 public class ReplaySystem : MonoBehaviour {
 
-	private const int bufferFrames = 100;
-	private MyKeyFrame[] keyFrames = new MyKeyFrame[bufferFrames];
+	private const int bufferFrames = 10000;
+	public static int framesLeft;
+	private List<MyKeyFrame> keyFrames = new List<MyKeyFrame>(bufferFrames);
 	private Rigidbody _rigidbody;
+	private int framePosition = 0;	// Where to start Playback
+	private bool rewinding = false, replaying = false;
 
 	// Use this for initialization
 	void Start () {
@@ -14,26 +17,52 @@ public class ReplaySystem : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
-		Record ();
-
+	void LateUpdate () {
+		if (GameManager.Recording)		Record ();
+		else if (GameManager.Replaying)	Playback ();
+		else if (GameManager.Rewinding)	Rewind ();
+		framesLeft = bufferFrames - keyFrames.Count;
 	}
 
 	void Record () {
-		_rigidbody.isKinematic = false;
-		int frame = Time.frameCount % bufferFrames;
-		Debug.Log ("Writing Frame: " + frame);
-		transform.position = keyFrames [frame]._position;
-		transform.rotation = keyFrames [frame]._rotation;
+		replaying = false;
+		rewinding = false;
+		if (_rigidbody)
+			_rigidbody.isKinematic = false;
+		float time = Time.time;
+		float realTime = Time.unscaledTime;
+		if (keyFrames.Count < bufferFrames)
+			keyFrames.Add (new MyKeyFrame (time, transform.position, transform.rotation));
+		else {
+			keyFrames.RemoveAt (keyFrames.Count-1);
+			keyFrames.Insert (0, new MyKeyFrame (time, transform.position, transform.rotation));
+		}
 	}
 
 	void Playback (){
-		_rigidbody.isKinematic = true;
-		int frame = Time.frameCount % bufferFrames;
-		float time = Time.time;
-		float realTime = Time.unscaledTime;
-		Debug.Log ("READING Frame: " + frame);
-		keyFrames [frame] = new MyKeyFrame (time, transform.position, transform.rotation);
+		if (!replaying){
+			framePosition = 0;	// Reset Playback position
+			replaying = true;
+		}
+		if (_rigidbody)
+			_rigidbody.isKinematic = true;
+		transform.position = keyFrames [framePosition % keyFrames.Count]._position;
+		transform.rotation = keyFrames [framePosition++ % keyFrames.Count]._rotation;
+	}
+
+	void Rewind (){
+		if (!rewinding){
+			framePosition = keyFrames.Count-1;	// Reset Playback position
+			rewinding = true;
+		}
+		if (framePosition < 0) {
+			return;//framePosition = keyFrames.Count;
+		}
+		if (_rigidbody)
+			_rigidbody.isKinematic = true;
+		transform.position = keyFrames [framePosition]._position;
+		transform.rotation = keyFrames [framePosition]._rotation;
+		keyFrames.RemoveAt (framePosition--);
 	}
 }
 

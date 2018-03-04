@@ -15,7 +15,9 @@ public class DebugText : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		debugText.text = "Horizontal Axis: " + USACPI.CrossPlatformInputManager.GetAxis ("Horizontal") + "\n" +
+		debugText.text = "Frames Left: " + ReplaySystem.framesLeft + "\n" +
+		"Time Scale: " + Time.timeScale + "\n\n" +
+		"Horizontal Axis: " + USACPI.CrossPlatformInputManager.GetAxis ("Horizontal") + "\n" +
 		"Vertical Axis: " + USACPI.CrossPlatformInputManager.GetAxis ("Vertical") + "\n\n" +
 		"Horizontal Right-Stick Axis: " + USACPI.CrossPlatformInputManager.GetAxis ("Right Stick Horizontal") +
 		"\nVertical Right-Stick Axis: " + USACPI.CrossPlatformInputManager.GetAxis ("Right Stick Vertical") +
