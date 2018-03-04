@@ -23,7 +23,6 @@ public class DebugText : MonoBehaviour {
 		"Vertical D-pad Axis: " + USACPI.CrossPlatformInputManager.GetAxis ("Dpad Vertical") + "\n\n" +
 		"Left Trigger 2 Axis: " + USACPI.CrossPlatformInputManager.GetAxis ("Left Trigger 2 Axis") + "\n" +
 		"Right Trigger 2 Axis: " + USACPI.CrossPlatformInputManager.GetAxis ("Right Trigger 2 Axis") + "\n\n" +
-		"TouchPad Axis: " + USACPI.CrossPlatformInputManager.GetAxis ("TouchPad Axis") + "\n\n" +
 		"SQUARE: " + USACPI.CrossPlatformInputManager.GetButton ("Square") + "\n" +
 		"CROSS: " + USACPI.CrossPlatformInputManager.GetButton ("Cross") + "\n" +
 		"CIRCLE: " + USACPI.CrossPlatformInputManager.GetButton ("Circle") + "\n" +
