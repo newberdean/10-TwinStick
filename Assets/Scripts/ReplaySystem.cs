@@ -8,6 +8,7 @@ public class ReplaySystem : MonoBehaviour {
 	public static int framesLeft;
 	private List<MyKeyFrame> keyFrames = new List<MyKeyFrame>(bufferFrames);
 	private Rigidbody _rigidbody;
+	private Vector3 rewoundVelocity = Vector3.zero; // When removing a frame during Rewind(), store the velocity.
 	private int framePosition = 0;	// Where to start Playback
 	private bool rewinding = false, replaying = false;
 
@@ -18,40 +19,34 @@ public class ReplaySystem : MonoBehaviour {
 	
 	// Update is called once per frame
 	void LateUpdate () {
+		try{
 		if (GameManager.Recording)		Record ();
 		else if (GameManager.Replaying)	Playback ();
-		else if (GameManager.Rewinding)	Rewind ();
+		else if (GameManager.Rewinding)	rewoundVelocity = Rewind ();
+		} catch (UnityException e){
+			
+		}
 		framesLeft = bufferFrames - keyFrames.Count;
 	}
 
 	void Record () {
 		if (_rigidbody) {
-			_rigidbody.isKinematic = false;/*
-			if (keyFrames.Count > 0) {
-				if (replaying)
-					_rigidbody.velocity = keyFrames [framePosition]._velocity;
-				else if (rewinding)
-					_rigidbody.velocity = keyFrames [framePosition]._velocity * -1;
-				replaying = false;
-				rewinding = false;
-			}*/
+			_rigidbody.isKinematic = false;
+			if (rewinding && keyFrames.Count > 0)
+				_rigidbody.velocity = rewoundVelocity;
+			else if (replaying && keyFrames.Count < framePosition)
+				_rigidbody.velocity = keyFrames [framePosition % keyFrames.Count]._velocity;
+			rewoundVelocity = Vector3.zero;
 		}
+		replaying = false;
+		rewinding = false;
 		float time = Time.time;
 		float realTime = Time.unscaledTime;
-		if (keyFrames.Count < bufferFrames) {
-			if (!_rigidbody) {
-				keyFrames.Add (new MyKeyFrame (time, transform.position, transform.rotation));
-			} else {
-				keyFrames.Add (new MyKeyFrame (time, transform.position, _rigidbody.velocity, transform.rotation));
-			}
-		}
+		if (keyFrames.Count < bufferFrames)
+			keyFrames.Add (new MyKeyFrame (time, transform.position, (_rigidbody ? _rigidbody.velocity : Vector3.zero), transform.rotation));
 		else {
-			keyFrames.RemoveAt (keyFrames.Count - 1);
-			if (!_rigidbody) {
-				keyFrames.Insert (0, new MyKeyFrame (time, transform.position, transform.rotation));
-			} else {
-				keyFrames.Insert (0, new MyKeyFrame (time, transform.position, _rigidbody.velocity, transform.rotation));
-			}
+			keyFrames.RemoveAt (keyFrames.Count-1);
+			keyFrames.Insert (0, new MyKeyFrame (time, transform.position, (_rigidbody ? _rigidbody.velocity : Vector3.zero), transform.rotation));
 		}
 	}
 
@@ -69,19 +64,21 @@ public class ReplaySystem : MonoBehaviour {
 		transform.rotation = keyFrames [framePosition++ % keyFrames.Count]._rotation;
 	}
 
-	void Rewind (){
+	Vector3 Rewind (){
 		if (!rewinding){
 			framePosition = keyFrames.Count-1;	// Reset Playback position
 			rewinding = true;
 		}
 		if (framePosition < 0) {
-			return;//framePosition = keyFrames.Count;
+			return Vector3.zero;
 		}
 		if (_rigidbody)
 			_rigidbody.isKinematic = true;
 		transform.position = keyFrames [framePosition]._position;
 		transform.rotation = keyFrames [framePosition]._rotation;
+		Vector3 vel = keyFrames [framePosition]._velocity * -1;
 		keyFrames.RemoveAt (framePosition--);
+		return vel;
 	}
 }
 

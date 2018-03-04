@@ -31,7 +31,7 @@ public class GameManager : MonoBehaviour {
 		Replaying = (
 			USACPI.CrossPlatformInputManager.GetButton ("Left Trigger 2") ||
 			USACPI.CrossPlatformInputManager.GetButton ("Fire1")
-		);
+		) && !Rewinding;
 		Rewinding = (
 			USACPI.CrossPlatformInputManager.GetButton ("Right Trigger 2") ||
 			USACPI.CrossPlatformInputManager.GetButton ("Fire2")
