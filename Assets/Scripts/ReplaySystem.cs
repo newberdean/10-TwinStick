@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ReplaySystem : MonoBehaviour {
 
-	private const int bufferFrames = 10000;
+	public static readonly int bufferFrames = 100000;
 	public static int framesLeft;
 	private List<MyKeyFrame> keyFrames = new List<MyKeyFrame>(bufferFrames);
 	private Rigidbody _rigidbody;
@@ -25,17 +25,33 @@ public class ReplaySystem : MonoBehaviour {
 	}
 
 	void Record () {
-		replaying = false;
-		rewinding = false;
-		if (_rigidbody)
-			_rigidbody.isKinematic = false;
+		if (_rigidbody) {
+			_rigidbody.isKinematic = false;/*
+			if (keyFrames.Count > 0) {
+				if (replaying)
+					_rigidbody.velocity = keyFrames [framePosition]._velocity;
+				else if (rewinding)
+					_rigidbody.velocity = keyFrames [framePosition]._velocity * -1;
+				replaying = false;
+				rewinding = false;
+			}*/
+		}
 		float time = Time.time;
 		float realTime = Time.unscaledTime;
-		if (keyFrames.Count < bufferFrames)
-			keyFrames.Add (new MyKeyFrame (time, transform.position, transform.rotation));
+		if (keyFrames.Count < bufferFrames) {
+			if (!_rigidbody) {
+				keyFrames.Add (new MyKeyFrame (time, transform.position, transform.rotation));
+			} else {
+				keyFrames.Add (new MyKeyFrame (time, transform.position, _rigidbody.velocity, transform.rotation));
+			}
+		}
 		else {
-			keyFrames.RemoveAt (keyFrames.Count-1);
-			keyFrames.Insert (0, new MyKeyFrame (time, transform.position, transform.rotation));
+			keyFrames.RemoveAt (keyFrames.Count - 1);
+			if (!_rigidbody) {
+				keyFrames.Insert (0, new MyKeyFrame (time, transform.position, transform.rotation));
+			} else {
+				keyFrames.Insert (0, new MyKeyFrame (time, transform.position, _rigidbody.velocity, transform.rotation));
+			}
 		}
 	}
 
@@ -43,6 +59,9 @@ public class ReplaySystem : MonoBehaviour {
 		if (!replaying){
 			framePosition = 0;	// Reset Playback position
 			replaying = true;
+		}
+		if (keyFrames.Count <= 0) {
+			return;//framePosition = keyFrames.Count;
 		}
 		if (_rigidbody)
 			_rigidbody.isKinematic = true;
@@ -72,18 +91,36 @@ public class ReplaySystem : MonoBehaviour {
 public struct MyKeyFrame {
 
 	public float _time;
-	public Vector3 _position;
+	public Vector3 _position, _velocity;
 	public Quaternion _rotation;
 
 	public MyKeyFrame (float time, Vector3 pos, Vector3 rot){
 		_time = time;
 		_position = pos;
 		_rotation = Quaternion.Euler(rot);
+
+		_velocity = Vector3.zero;
 	}
 
 	public MyKeyFrame (float time, Vector3 pos, Quaternion rot){
 		_time = time;
 		_position = pos;
+		_rotation = rot;
+
+		_velocity = Vector3.zero;
+	}
+
+	public MyKeyFrame (float time, Vector3 pos, Vector3 vel, Vector3 rot){
+		_time = time;
+		_position = pos;
+		_velocity = vel;
+		_rotation = Quaternion.Euler(rot);
+	}
+
+	public MyKeyFrame (float time, Vector3 pos, Vector3 vel, Quaternion rot){
+		_time = time;
+		_position = pos;
+		_velocity = vel;
 		_rotation = rot;
 	}
 }

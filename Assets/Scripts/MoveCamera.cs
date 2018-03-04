@@ -18,7 +18,7 @@ public class MoveCamera : MonoBehaviour {
 	
 	// Update is called once per frame
 	void LateUpdate () {
-		if (GameManager.Recording) {
+		//if (GameManager.Recording) {
 			transform.position = ballTransform.position;
 			// yaw = Mathf.Clamp(yaw + (speedH * Input.GetAxis("Mouse X")), -50f, 50f);
 			// yaw = Mathf.Clamp(yaw + (speedH * 10 * Input.GetAxis("Right Stick Horizontal")), -50f, 50f);
@@ -26,6 +26,6 @@ public class MoveCamera : MonoBehaviour {
 			pitch = Mathf.Clamp (pitch - (speedV * 10 * Input.GetAxis ("Right Stick Vertical")), -50f, 50f);
 
 			transform.eulerAngles = new Vector3 (0f, /*yaw*/0f, pitch);
-		}
+		//}
 	}
 }
