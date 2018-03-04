@@ -19,24 +19,19 @@ public class ReplaySystem : MonoBehaviour {
 	
 	// Update is called once per frame
 	void LateUpdate () {
-		try{
 		if (GameManager.Recording)		Record ();
-		else if (GameManager.Replaying)	Playback ();
+		else if (GameManager.Replaying)	rewoundVelocity = Playback ();
 		else if (GameManager.Rewinding)	rewoundVelocity = Rewind ();
-		} catch (UnityException e){
-			
-		}
 		framesLeft = bufferFrames - keyFrames.Count;
 	}
 
 	void Record () {
 		if (_rigidbody) {
 			_rigidbody.isKinematic = false;
-			if (rewinding && keyFrames.Count > 0)
+			if ((rewinding || replaying) && keyFrames.Count > 0) {
 				_rigidbody.velocity = rewoundVelocity;
-			else if (replaying && keyFrames.Count < framePosition)
-				_rigidbody.velocity = keyFrames [framePosition % keyFrames.Count]._velocity;
-			rewoundVelocity = Vector3.zero;
+				rewoundVelocity = Vector3.zero;
+			}
 		}
 		replaying = false;
 		rewinding = false;
@@ -50,18 +45,20 @@ public class ReplaySystem : MonoBehaviour {
 		}
 	}
 
-	void Playback (){
+	Vector3 Playback (){
 		if (!replaying){
 			framePosition = 0;	// Reset Playback position
 			replaying = true;
 		}
 		if (keyFrames.Count <= 0) {
-			return;//framePosition = keyFrames.Count;
+			return Vector3.zero;
 		}
 		if (_rigidbody)
 			_rigidbody.isKinematic = true;
 		transform.position = keyFrames [framePosition % keyFrames.Count]._position;
-		transform.rotation = keyFrames [framePosition++ % keyFrames.Count]._rotation;
+		transform.rotation = keyFrames [framePosition % keyFrames.Count]._rotation;
+		Vector3 vel = keyFrames [framePosition++ % keyFrames.Count]._velocity;
+		return vel;
 	}
 
 	Vector3 Rewind (){
