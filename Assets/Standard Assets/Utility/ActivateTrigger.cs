@@ -67,7 +67,7 @@ namespace UnityStandardAssets.Utility
                     case Mode.Enable:
                         if (targetBehaviour != null)
                         {
-                            targetBehaviour.enabled = true;
+							targetBehaviour.enabled = true;
                         }
                         break;
                     case Mode.Animate:

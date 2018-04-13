@@ -6,23 +6,36 @@ public class ReplaySystem : MonoBehaviour {
 
 	public static readonly int bufferFrames = 100000;
 	public static int framesLeft;
+
+	public AnimationClip startingClip;
+
 	private List<MyKeyFrame> keyFrames = new List<MyKeyFrame>(bufferFrames);
 	private Rigidbody _rigidbody;
 	private Vector3 rewoundVelocity = Vector3.zero; // When removing a frame during Rewind(), store the velocity.
 	private int framePosition = 0;	// Where to start Playback
-	private bool rewinding = false, replaying = false;
+	private bool rewinding = false, replaying = false, beginLevel = false;
 
 	// Use this for initialization
 	void Start () {
 		_rigidbody = GetComponent<Rigidbody> ();
+		Invoke ("BEGIN", startingClip.length);
 	}
-	
+
+	void BEGIN (){
+		beginLevel = true;
+	}
+
 	// Update is called once per frame
 	void LateUpdate () {
-		if (GameManager.Recording)		Record ();
-		else if (GameManager.Replaying)	rewoundVelocity = Playback ();
-		else if (GameManager.Rewinding)	rewoundVelocity = Rewind ();
-		framesLeft = bufferFrames - keyFrames.Count;
+		if (beginLevel && Time.timeScale > 0f) {
+			if (ReplaySystemManager.Recording)
+				Record ();
+			else if (ReplaySystemManager.Replaying)
+				rewoundVelocity = Playback ();
+			else if (ReplaySystemManager.Rewinding)
+				rewoundVelocity = Rewind ();
+			framesLeft = bufferFrames - keyFrames.Count;
+		}
 	}
 
 	void Record () {
