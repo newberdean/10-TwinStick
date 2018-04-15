@@ -72,6 +72,7 @@ public class LevelManager : MonoBehaviour {
 	}
 	
 	void LevelLoaded(Scene scene, LoadSceneMode mode){
+		ReplaySystemManager.LevelEnd = false;
 		GameObject canditate = GameObject.FindGameObjectWithTag ("PauseMenu");
 		if (canditate) {
 			GameManager.PAUSEMENU = canditate.transform.GetChild (0).gameObject;
@@ -81,7 +82,7 @@ public class LevelManager : MonoBehaviour {
 			}
 		}
 		if (scene.name.Contains ("_Level") && !scene.name.Equals ("_Levels")) {
-			GameManager.ResetCountdown (60);
+			GameManager.ResetCountdown (scene.name.Equals("_Level10") ? 120 : scene.name.Equals("_Level09") ? 10 : 60);
 			lastLevel = scene.name;
 		}
 	}
@@ -113,10 +114,19 @@ public class LevelManager : MonoBehaviour {
 		SceneManager.LoadScene (SceneManager.GetActiveScene().buildIndex+1);
 	}
 
+	public static void SkipLastLevel(){
+		int lastLevelIndex = SceneUtility.GetBuildIndexByScenePath("Assets/Scenes/Levels/" + lastLevel + ".unity");
+		if (!PlayerPrefsManager.IsLevelUnlocked (lastLevelIndex))
+			PlayerPrefsManager.UnlockLevel (lastLevelIndex);
+		SceneManager.LoadScene (lastLevelIndex + 1);
+	}
+
 	public static void LOSE(){
 		if ((!SceneManager.GetActiveScene ().name.Contains ("_Level") || SceneManager.GetActiveScene ().name.Equals ("_Levels")) || 
 			(SceneManager.GetActiveScene ().name.Equals ("_Level00")))
 			GameManager.ResetCountdown (9999);			
+		else if (SceneManager.GetActiveScene ().name.Equals ("_Level09"))
+			SceneManager.LoadScene ("_Lose_lv9");
 		else {
 			if (loseFound) {
 				SceneManager.LoadScene (loseScreen);

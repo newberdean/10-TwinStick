@@ -11,10 +11,15 @@ public class ExitScript : MonoBehaviour {
 	ParticleSystem mysystem;
 	ParticleSystem childsys;
 
-	public bool exitEnabled = true;
+	public bool exitEnabled = true, timedExit = false;
+
+	bool triggered = false;
 
 	// Use this for initialization
 	void Start () {
+		if (timedExit) {
+			Invoke ("Enable", GameManager.TIME_LEFT*0.9f);
+		}
 		cam = GameObject.Find ("Camera Stand");
 		ball = GameObject.FindGameObjectWithTag ("Player");
 		mysystem = GetComponent<ParticleSystem> ();
@@ -24,8 +29,10 @@ public class ExitScript : MonoBehaviour {
 		}
 	}
 
-	void OnTriggerEnter (Collider other){
-		if (other.CompareTag ("Player") && exitEnabled) {
+	void OnTriggerStay (Collider other){
+		if (other.CompareTag ("Player") && exitEnabled && !triggered) {
+			triggered = true;
+			ReplaySystemManager.LevelEnd = true;
 			GameManager.StopCountdown ();
 			cam.GetComponent<MoveCamera> ().enabled = false;
 			ball.GetComponent<UnityStandardAssets.Vehicles.Ball.Ball> ().enabled = false;
@@ -64,6 +71,7 @@ public class ExitScript : MonoBehaviour {
 	}
 
 	public void Enable(){
+		GetComponent<MeshRenderer> ().enabled = true;
 		exitEnabled = true;
 		mysystem.Play (false);
 	}

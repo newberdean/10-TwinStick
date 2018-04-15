@@ -30,16 +30,17 @@ public class GameManager : MonoBehaviour {
 		"Hint:\nThe ONLY way to lose is to run out of time.\nIn other words, don't " +		// 3 Downhill Rush
 			"worry too much if you fall off the edge of the world; just rewind or " +
 			"replay and try again!",
-		"Hint:\nRewinding instantly changes your direction and speed. You can use " +		// 4 Box Party
-			"this to your advantage here.",
+		"Hint:\nThe ball moves by applying torque (spinning) - but all that energy " +
+			"goes to waste in the air. When the ball LANDS though...",
 		"Hint:\nRemember this place? That <i>tutorial</i> WAS good for something!",			// 5 Something Old
-		"Hint:\nYou'll need to Activate the Exit this time.\nIn most obnoxious " +			// 6 Something New
-			"indie games, it's usually done by pressing a Button. But how to get " +
+		"Hint:\nYou'll need to Activate the Exit this time.\nIn most simple " +			// 6 Something New
+			"games (LIKE THIS!), it's usually done by pressing a Button. But how to get " +
 			"there and back again?...",
 		"Hint:\n... And now you have strange floor things you can touch. You only " +		// 7 I Can't Rhyme
-			"lose if you run out of time, so what's the worst that could happen?",
+			"lose if you run out of time, so what's the worst that could happen? " +
+			"Also, note that buttons can be connected!",
 		"Hint:\nDifferent floor things with different functions! You're welcome/I'm " +		// 8 F*** You Too
-			"sorry.",
+			"sorry. All floor devices are one way only.",
 		"Hint:\n...Oh, sorry. The Exit appears to be late. <i>If you stay still, it " +		// 9 Late Finish
 			"should be there momentarily</i>.",
 		"Hint:\nThis is the Final Level. Use everything you've learned to finish!"			// 10 The Finale
@@ -77,6 +78,7 @@ public class GameManager : MonoBehaviour {
 			gm = this;
 			DontDestroyOnLoad (gameObject);
 			fixedTimeStep = Time.fixedDeltaTime;
+			PlayerPrefsManager.CheckSettings ();
 		}
 	}
 

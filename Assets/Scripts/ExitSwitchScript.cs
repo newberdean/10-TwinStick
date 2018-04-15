@@ -9,6 +9,7 @@ public class ExitSwitchScript : MonoBehaviour {
 	public GameObject[] linkedObjects;
 
 	private ExitScript[] exitScripts;
+	private ExitSwitchScript[] exitSwitchScripts;
 	private Vector3 originalPosition;
 	private Renderer childRenderer;
 
@@ -18,17 +19,28 @@ public class ExitSwitchScript : MonoBehaviour {
 		childRenderer = GetComponentInChildren<Renderer> ();
 		SetUpButton ();
 		int exits = 0;
+		int switches = 0;
 		foreach (GameObject g in linkedObjects) {
 			if (g.GetComponent<ExitScript> () != null)
 				exits++;
+			else if (g.GetComponent<ExitSwitchScript> () != null)
+				switches++;
 		}
 		exitScripts = new ExitScript[exits];
 		exits = 0;
-		for (int i = 0; i < exitScripts.Length; i++) {
-			if (linkedObjects [i + exits].GetComponent<ExitScript> () != null)
-				exitScripts [i] = linkedObjects [i + exits].GetComponent<ExitScript> ();
+		for (int i = 0; i < linkedObjects.Length; i++) {
+			if (linkedObjects [i].GetComponent<ExitScript> () != null)
+				exitScripts [i - exits] = linkedObjects [i].GetComponent<ExitScript> ();
 			else
 				exits++;
+		}
+		exitSwitchScripts = new ExitSwitchScript[switches];
+		switches = 0;
+		for (int i = 0; i < linkedObjects.Length; i++) {
+			if (linkedObjects [i].GetComponent<ExitSwitchScript> () != null)
+				exitSwitchScripts [i - switches] = linkedObjects [i].GetComponent<ExitSwitchScript> ();
+			else
+				switches++;
 		}
 	}
 	
@@ -42,6 +54,9 @@ public class ExitSwitchScript : MonoBehaviour {
 				else
 					exit.Disable ();
 			}
+			foreach (ExitSwitchScript exit in exitSwitchScripts) {
+				exit.SetButtonState (active);
+			}
 		}
 	}
 
@@ -51,5 +66,15 @@ public class ExitSwitchScript : MonoBehaviour {
 		else
 			childRenderer.material = inActiveMat;
 		transform.GetChild(0).position = active ? originalPosition + Vector3.down*0.12f : originalPosition;
+	}
+
+	public void ToggleButton (){
+		active = !active;
+		SetUpButton ();
+	}
+
+	public void SetButtonState (bool state){
+		active = state;
+		SetUpButton ();
 	}
 }

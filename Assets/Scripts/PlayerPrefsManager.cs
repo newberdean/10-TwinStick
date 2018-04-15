@@ -26,11 +26,10 @@ public class PlayerPrefsManager : MonoBehaviour {
 				PlayerPrefs.SetInt (LEVEL_KEY + i.ToString(), 1);
 			}
 		}
-		if (PlayerPrefs.GetInt(LEVEL_KEY + 14.ToString()) == 0) {
-			PlayerPrefs.SetInt (LEVEL_KEY + 14.ToString(), 1);
-		}
-		if (PlayerPrefs.GetInt(LEVEL_KEY + 15.ToString()) == 0) {
-			PlayerPrefs.SetInt (LEVEL_KEY + 15.ToString(), 1);
+		for (int i = 14; i < 17; i++) {
+			if (PlayerPrefs.GetInt (LEVEL_KEY + i.ToString()) == 0) {
+				PlayerPrefs.SetInt (LEVEL_KEY + i.ToString(), 1);
+			}
 		}
 	}
 

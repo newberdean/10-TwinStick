@@ -8,7 +8,8 @@ using USACPI = UnityStandardAssets.CrossPlatformInput;
 public class ReplaySystemManager : MonoBehaviour {
 
 	public static ReplaySystemManager REWINDMANAGER;
-	public static bool Recording = true, Rewinding = false, Replaying = false;
+	public static bool Recording = true, Rewinding = false, Replaying = false, LevelEnd = false;
+
 	public GameObject rec, rew, rep, stp, lmt; // Record, Rewind, Replay, Stop, Limit;
 
 	private bool rewindLast = false, replayLast = false, canRewind = true, canReplay = true;
@@ -42,12 +43,12 @@ public class ReplaySystemManager : MonoBehaviour {
 
 			// Check if we are over a UI element, and if we are, check if we are over the pause button.
 			if (EventSystem.current.IsPointerOverGameObject ()) {
-				PointerEventData pointerData = new PointerEventData(EventSystem.current) {
+				PointerEventData pointerData = new PointerEventData (EventSystem.current) {
 					position = Input.mousePosition
 				};
 
-				List<RaycastResult> results = new List<RaycastResult>();
-				EventSystem.current.RaycastAll(pointerData, results);
+				List<RaycastResult> results = new List<RaycastResult> ();
+				EventSystem.current.RaycastAll (pointerData, results);
 
 				foreach (RaycastResult result in results) {
 					if (result.gameObject.CompareTag ("PauseButton")) {
@@ -60,28 +61,20 @@ public class ReplaySystemManager : MonoBehaviour {
 			}
 
 			// If we're NOT holding a Replay/Rewind Button, and we're NOT Rewinding/Replaying, we must be Recording.
-			Recording = !((ReplayButton && !Rewinding && canReplay) || (RewindButton && !Replaying && canRewind));
+			Recording = !((ReplayButton && !Rewinding && canReplay) || (RewindButton && !Replaying && canRewind)) || LevelEnd;
 
-			if (ReplayButton && !Rewinding && canReplay) {
+			if (ReplayButton && !Rewinding && canReplay && !LevelEnd) {
 				Replaying = canReplay = replayLast = true;
 				canRewind = rewindLast = false;
 				if (lmt)
 					SetUpLimit ();
-			} else if (RewindButton && !Replaying && canRewind) {
+			} else if (RewindButton && !Replaying && canRewind && !LevelEnd) {
 				Rewinding = canRewind = rewindLast = true;
 				canReplay = replayLast = false;
 				if (lmt)
 					SetUpLimit ();
 			} else {
 				Rewinding = Replaying = false;
-			}
-
-			if (USACPI.CrossPlatformInputManager.GetButton ("Left Trigger 1")) {
-				Time.timeScale = (Mathf.Max (0f, Time.timeScale - 0.1f));
-			}
-
-			if (USACPI.CrossPlatformInputManager.GetButton ("Right Trigger 1")) {
-				Time.timeScale = (Mathf.Min (100f, Time.timeScale + 0.1f));
 			}
 
 			if (lmt) {
@@ -94,6 +87,9 @@ public class ReplaySystemManager : MonoBehaviour {
 					canRewind = true;
 				}
 			}
+		} else if (!GameManager.CAN_MANIPULATE_TIME && LevelEnd) {
+			Rewinding = Replaying = false;
+			Recording = true;
 		}
 		// UI: Set which indicators show based on status.
 		if (rec)

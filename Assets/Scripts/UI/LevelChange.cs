@@ -25,6 +25,8 @@ public class LevelChange : MonoBehaviour {
 			LevelManager.LEVELMANAGER.QuitRequest ();
 		} else if (level.Equals ("Retry")) {
 			LevelManager.LEVELMANAGER.LoadLevel (LevelManager.lastLevel);
+		} else if (level.Equals ("Skip")) {
+			LevelManager.SkipLastLevel ();
 		} else {
 			LevelManager.LEVELMANAGER.LoadLevel (level);
 		}
